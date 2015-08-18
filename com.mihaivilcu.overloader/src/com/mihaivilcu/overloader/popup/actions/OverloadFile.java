@@ -1,8 +1,8 @@
 package com.mihaivilcu.overloader.popup.actions;
 
-import java.util.Iterator;
+import java.util.*;
 
-import org.apache.commons.lang.ArrayUtils;
+
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -52,8 +52,8 @@ public class OverloadFile implements IObjectActionDelegate {
 		dialog.setElements(getProjects());
 
 		dialog.setHelpAvailable(false);
-		dialog.setMessage(Messages.OverloadFile_select_destinaion);
-		dialog.setTitle(Messages.OverloadFile_selectbox_message);
+		dialog.setMessage(Messages.OverloadFile_selectbox_message);
+		dialog.setTitle(Messages.OverloadFile_select_destinaion);
 		// user pressed cancel
 		if (dialog.open() != Window.OK) {
 			return;
@@ -139,9 +139,19 @@ public class OverloadFile implements IObjectActionDelegate {
 	public IProject[] getProjects() {
 		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 		// active project
-		IProject project = ((IFile)currentSelection.getFirstElement()).getProject();
+		IProject activeProject = ((IFile)currentSelection.getFirstElement()).getProject();
 		
-		return (IProject[]) ArrayUtils.removeElement(projects, project);
+		List<IProject> results = new ArrayList<IProject>();
+
+		for ( IProject p : projects ) {
+			if (p == activeProject || p.getName().equals("RemoteSystemsTempFiles")) {
+				continue;
+			}
+
+			results.add(p);
+		}
+		
+		return results.toArray(new IProject[results.size()]);
 	}
 
 	/**
