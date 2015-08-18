@@ -2,6 +2,7 @@ package com.mihaivilcu.overloader.popup.actions;
 
 import java.util.Iterator;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -26,7 +27,7 @@ import org.eclipse.ui.ide.IDE;
 public class OverloadFile implements IObjectActionDelegate {
 
 	private Shell shell;
-	private ISelection currentSelection;
+	private ITreeSelection currentSelection;
 
 	/**
 	 * Constructor for Action1.
@@ -51,8 +52,8 @@ public class OverloadFile implements IObjectActionDelegate {
 		dialog.setElements(getProjects());
 
 		dialog.setHelpAvailable(false);
-		dialog.setMessage("Select the destination project");
-		dialog.setTitle("Which operating system are you using");
+		dialog.setMessage(Messages.OverloadFile_select_destinaion);
+		dialog.setTitle(Messages.OverloadFile_selectbox_message);
 		// user pressed cancel
 		if (dialog.open() != Window.OK) {
 			return;
@@ -69,27 +70,25 @@ public class OverloadFile implements IObjectActionDelegate {
 	 */
 	protected void overloadToProject(IProject project) {
 		// get all the selected files
-		if (currentSelection instanceof ITreeSelection) {
+		Iterator<IFile> files = currentSelection.iterator();
 
-			Iterator<IFile> files = ((ITreeSelection) currentSelection).iterator();
+		while (files.hasNext()) {
+			IFile elem = files.next();
+			IPath path = project.getFullPath().append(elem.getProjectRelativePath());
 
-			while (files.hasNext()) {
-				IFile elem = files.next();
-				IPath path = project.getFullPath().append(elem.getProjectRelativePath());
+			try {
+				this.createFolders(project, elem.getParent().getProjectRelativePath());
+				elem.copy(path, false, null);
+				MessageDialog.openInformation(shell, Messages.OverloadFile_success_title, Messages.OverloadFile_success_message);
+				this.openFile(path);
 
-				try {
-					this.createFolders(project, elem.getParent().getProjectRelativePath());
-					elem.copy(path, false, null);
-					MessageDialog.openInformation(shell, "Success", "The file was overloaded successfully !");
-					this.openFile(path);
-
-				} catch (CoreException e) {
-					MessageDialog.openError(shell, "Error", e.getMessage());
-					return;
-				}
-
+			} catch (CoreException e) {
+				MessageDialog.openError(shell, Messages.OverloadFile_error_title, e.getMessage());
+				return;
 			}
+
 		}
+
 	}
 
 	/**
@@ -137,16 +136,21 @@ public class OverloadFile implements IObjectActionDelegate {
 	 * 
 	 * @return
 	 */
-	public static IProject[] getProjects() {
+	public IProject[] getProjects() {
 		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-		return projects;
+		// active project
+		IProject project = ((IFile)currentSelection.getFirstElement()).getProject();
+		
+		return (IProject[]) ArrayUtils.removeElement(projects, project);
 	}
 
 	/**
 	 * @see IActionDelegate#selectionChanged(IAction, ISelection)
 	 */
 	public void selectionChanged(IAction action, ISelection selection) {
-		currentSelection = selection;
+		currentSelection = (ITreeSelection)selection;
 	}
+	
+
 
 }

@@ -8,10 +8,10 @@
             objectClass="org.eclipse.core.resources.IFile"
             id="com.mihaivilcu.overloader.contribution1">
          <action
-               label="Overload File"
                class="com.mihaivilcu.overloader.popup.actions.OverloadFile"
                enablesFor="1"
-               id="com.mihaivilcu.overloader.overloadFile">
+               id="com.mihaivilcu.overloader.overloadFile"
+               label="%action.label">
          </action>
       </objectContribution>
    </extension>
