@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            objectClass="org.eclipse.core.resources.IFile"
+            id="com.mihaivilcu.overloader.contribution1">
+         <action
+               label="Overload File"
+               class="com.mihaivilcu.overloader.popup.actions.OverloadFile"
+               enablesFor="1"
+               id="com.mihaivilcu.overloader.overloadFile">
+         </action>
+      </objectContribution>
+   </extension>
+
+</plugin>
